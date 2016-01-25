@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://ibrahim-islam.github.io/sitemap.xml 
