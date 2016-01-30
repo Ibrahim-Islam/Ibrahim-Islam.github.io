@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[]]></title>
-  <link href="http://ibrahim-islam.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: javascript | ]]></title>
+  <link href="http://ibrahim-islam.github.io/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://ibrahim-islam.github.io/"/>
   <updated>2016-01-30T14:58:19+06:00</updated>
   <id>http://ibrahim-islam.github.io/</id>
@@ -111,81 +111,6 @@ alert(willisID.id); // 102
 </code></pre>
 
 <p>I scoured the net before understanding Closure. So, do not hate me if you have seen something here before :P</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cross-Domain With WebAPI]]></title>
-    <link href="http://ibrahim-islam.github.io/blog/2016/01/30/cross-domain-with-webapi/"/>
-    <updated>2016-01-30T14:22:18+06:00</updated>
-    <id>http://ibrahim-islam.github.io/blog/2016/01/30/cross-domain-with-webapi</id>
-    <content type="html"><![CDATA[<p>Someday, there will rise a need to develop APIs that can be comsumed by multiple clients i.e. <strong>cross-domain</strong> requests; for example, APIs to be consumed by browser-based client applications e.g. Chrome Extension or an Angular app.</p>
-
-<!-- More -->
-
-
-<p>What is <strong>Cross-Domain</strong>?</p>
-
-<blockquote><p>Cross-Domain HTTP requests are HTTP requests for resources from a different domain than the domain of the resource making the request. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">[1]</a></p></blockquote>
-
-<p>and this is a big deal because <strong>cross-domain</strong> requests are subjected to a browsers' <strong>same-origin</strong> policy:</p>
-
-<blockquote><p>The same-origin policy means that your JavaScript can only make AJAX calls back to the same origin of the containing Web page (where “origin” is defined as the combination of host name, protocol and port number). <a href="http://msdn.microsoft.com/en-us/magazine/dn532203.aspx">[2]</a></p></blockquote>
-
-<p>Then there was <strong>CORS</strong>:</p>
-
-<blockquote><p>Cross-origin resource sharing (CORS) is a World Wide Web Consortium (W3C) specification that lets JavaScript overcome the same-origin policy security restriction imposed by browsers.</p></blockquote>
-
-<p>So, now what happens is that when a browser sees that a cross-domain request is about to happen it will send in additional headers (depending on the type of CORS request) with the request for the server to determine whether the requesting origin has access to it. There are 2 kinds of CORS request: <strong>Simple</strong> and <strong>Preflight</strong>.</p>
-
-<h3>Simple CORS Request</h3>
-
-<p>Simple CORS request are when the browser just adds an <code>origin</code> header with the request to identify the requester. If the browser sends a response with the header <code>Allow-Control-Allow-Origin</code> and its value set as <em>*</em> (meaning any origin) or at least the origin value that was sent with the request then it is successful and the requesting data will be present else error.
-To summarise following conditions are to be met for a request for a simple cors request:</p>
-
-<ul>
-<li><code>GET</code>, <code>HEAD</code> or <code>POST</code></li>
-<li>POST&rsquo;s <code>Content-Type</code> set as one of <code>application/x-www-form-urlencoded</code>, <code>multipart/form-data</code>, or <code>text/plain</code></li>
-<li>No custom headers</li>
-</ul>
-
-
-<h3>Preflight CORS Request</h3>
-
-<p>Applicable when conditions for a Simple CORS request are not met. Preflight CORS requests consist of an additional prior request using <code>OPTIONS</code> method to the server to get access permission before the actual request takes place. So, 2 requests per cross-domain request or each URL.</p>
-
-<h3>Microsoft.AspNet.WebApi.Cors</h3>
-
-<p>As you might have guessed from the sub-title above, it is a CORS framework for WebAPI widely available through <a href="https://www.nuget.org/packages/Microsoft.AspNet.WebApi.Cors">NuGet</a> to be referenced in your WebAPI application. It is as easy as enabling it on your <code>WebApiConfig.cs</code> file:</p>
-
-<pre><code class="csharp">public static class WebApiConfig
-{
-  public static void Register(HttpConfiguration config)
-  {
-    // Enable Cors
-    config.EnableCors();
-
-    //...Routes
-  }
-}
-</code></pre>
-
-<p>Then decorate whatever controller which you want Cors support like below with whatever config you prefer. The following allows cors for all origins, headers and methods:</p>
-
-<pre><code class="csharp">[EnableCors(origins: "*", headers: "*", methods: "*")]
-public class TestController : ApiController 
-{
-    [HttpPost]
-    public HttpResponseMessage Post()
-    { }
-}
-</code></pre>
-
-<p>More info can be found <a href="http://www.asp.net/web-api/overview/security/enabling-cross-origin-requests-in-web-api">here</a> on how to fully use this tool.</p>
-
-<p>So, you have no worries about making your APIs cross-domain compliant now and have more control over accessibility. But few things to watch out like when making a <code>PUT</code> or <code>DELETE</code> request which is eligible for a Preflight CORS request and uses <code>OPTIONS</code> method (recall from earlier), you might have your controller set to accept only obvious HTTP methods like <code>POST</code> or <code>GET</code> which will fail the request because you had not allowed <code>OPTIONS</code> to get through.</p>
-
-<p>This post is a summary of my learnings when I was stuck with handling cross-domain request (Preflight) in WebAPI. Hope it will help someone and comment below for any help.</p>
 ]]></content>
   </entry>
   
