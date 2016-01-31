@@ -1,0 +1,205 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta name="google-site-verification" content="PtdF5OOxCI6ezB1LjPUOPufeuwf7psx98rh36gA88AA" />
+	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta charset="utf-8">
+	<title>EF : Alternative way of handling Many-To-Many relationships | </title>
+
+	<meta name="author" content="Ibrahim Islam">
+	
+	<meta name="description" content="Handling a many to many relationship with its join table in Entity Framework Code-First approach">
+
+	<meta name="HandheldFriendly" content="True" />
+	<meta name="MobileOptimized" content="320" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<link href="/atom.xml" rel="alternate" title="" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400" />
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css" />
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<style type="text/css">
+		#imgcontainer {
+			margin:2rem auto -2rem auto;
+			width:80%;
+			max-width:700px;
+			display: table;
+			margin: 0 auto;
+		}
+
+		#imgcontainer img {
+		  display: inline-block;
+		  vertical-align:middle;
+		}
+
+		#imgcontainer a {
+		  display: table-cell;
+		  text-align: center;
+		  width: 16%;
+		}
+	</style>
+</head>
+
+
+<body class="post-template">
+  <main class="content" role="main"><article class="post">
+  
+	<header class="post-header">
+		<a id="blog-logo" href="/"></a>
+	</header>
+	<span class="post-meta">31 Jan 2016</span>
+	<h1 class="post-title">EF : Alternative Way of Handling Many-To-Many Relationships</h1>
+
+	<section class="post-content">
+		<p>Handling many-to-many relationships using Entity Framework with Code-First approach has been a little challanging for me in the past. I do not recall properly but most was due to having CRUD operations on the child collection objects. Also, due to EF abstraction in the Core-First approach, handling data directly in the database in a traditional way becomes a bit difficult.</p>
+
+<!-- More -->
+
+
+<p>Follwing is the usual way to model many-to-many relations with Code-First approach in EF:</p>
+
+<pre><code class="csharp">public class Employee
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public virtual ICollection&lt;Qualification&gt; Qualifications { get; set; }
+}
+
+public class Qualification
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public virtual ICollection&lt;Employee&gt; Employees { get; set; }
+}
+</code></pre>
+
+<p>Now, operations on these might look like following:</p>
+
+<pre><code class="csharp">//Adding a qualification to an employee
+var emp = await db.Employees.SingleOrDefaultAsync(p =&gt; p.Id == 4);
+var qual = await db.Qualifications.SingleOrDefaultAsync(p =&gt; p.Id == 4);
+emp.Qualifications.Add(qual);
+</code></pre>
+
+<p>Assuming, I am getting the entities Ids from the client, I need to pull them everytime and make changes accordingly. This is abstraction done well by EF.</p>
+
+<p>But if I want more direct access I can break the relationship into 1-to-many:</p>
+
+<pre><code class="csharp">public class Employee
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public virtual ICollection&lt;EmployeesQualifications&gt; EmployeeQualifications { get; set; }
+}
+
+public class EmployeesQualifications
+{
+    public int Id { get; set; }
+    public int EmployeeId { get; set; }
+    public int QualificationId { get; set; }
+}
+
+public class Qualification
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public virtual ICollection&lt;EmployeesQualifications&gt; QualificationEmployees { get; set; }
+}
+</code></pre>
+
+<p>And now I can perform operations like following given I am getting only the entities' Ids:</p>
+
+<pre><code class="csharp">//Adding a qualification to an employee
+db.EmployeesQualifications.Add(new EmployeesQualifications
+{
+    EmployeeId = 4,
+    QualificationId = 4
+});
+</code></pre>
+
+<p>By using this approach, I have more direct access to the tables and I reduce the code I need to bring in related entities into the context to perfrom an operation. Its nothing ground breaking but I think its worth putting it out there for people to know and for me to remind myself in the future.</p>
+
+	</section>
+
+  <footer class="post-footer">
+  <section class="author">
+    <h4>Ibrahim Islam</h4>
+    <p></p>
+  </section>
+  <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?text=EF : Alternative way of handling Many-To-Many relationships&amp;url=http://ibrahim-islam.github.io/blog/2016/01/31/ef-alternative-way-of-handling-many-to-many-relationships/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://ibrahim-islam.github.io/blog/2016/01/31/ef-alternative-way-of-handling-many-to-many-relationships/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http://ibrahim-islam.github.io/blog/2016/01/31/ef-alternative-way-of-handling-many-to-many-relationships/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+    </a>
+  </section>
+</footer>
+  <hr>
+  
+    <div class="share">
+</div>
+
+  
+  
+  <section id="comment">
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+  
+</article></main>
+  <footer class="site-footer"><a class="subscribe icon-feed" href="http://ibrahim-islam.github.io/atom.xml"><span class="tooltip">Subscribe!</span></a>
+
+
+<div class="inner">
+
+
+
+
+
+
+
+
+
+<section class="copyright">All content copyright <a href="/">Ibrahim Islam</a> © 2016 • All rights reserved.</section>
+
+<section class="poweredby">Casper theme by <a class="icon-ghost" href="http://tryghost.org">Ghost</a> &amp; Published with <a href="http://octopress.org">Octopress</a></section>
+
+</div>
+</footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'ibrahimsblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://ibrahim-islam.github.io/blog/2016/01/31/ef-alternative-way-of-handling-many-to-many-relationships/';
+        var disqus_url = 'http://ibrahim-islam.github.io/blog/2016/01/31/ef-alternative-way-of-handling-many-to-many-relationships/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+</body>
+</html>
